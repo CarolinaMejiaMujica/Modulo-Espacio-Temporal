@@ -3,15 +3,15 @@ from config.db import conn
 from models.user import users
 from schemas.index import User
 from fastapi import HTTPException
-#import json
+import json
 #from bokeh.plotting import Figure
-#from bokeh.embed import json_item
+from bokeh.embed import json_item
 #from bokeh.sampledata.autompg import autompg
 #from numpy import cos, linspace
 #from bokeh.io import show
 #from bokeh.models import LogColorMapper
-#from bokeh.plotting import figure, output_file, show
-#from bokeh.sampledata.iris import flowers
+from bokeh.plotting import figure, output_file, show
+from bokeh.sampledata.iris import flowers
 #from fastapi.responses import JSONResponse
 #from fastapi.encoders import jsonable_encoder
 #import xmltojson
@@ -22,7 +22,7 @@ user = APIRouter()
 def read_data():
     return conn.execute(users.select()).fetchall()
 
-'''@user.get('/select')
+@user.get('/select')
 def grafico_mapa():
     colormap = {'setosa': 'red', 'versicolor': 'green', 'virginica': 'blue'}
     colors = [colormap[x] for x in flowers['species']]
@@ -41,7 +41,7 @@ def grafico_mapa():
     #    json_ = xmltojson.parse(html)
     #show(p)
     #json.dumps(json_item(p, "myplot"))
-    return json.dumps(json_item(p, "myplot"))'''
+    return json.dumps(json_item(p, "myplot"))
 
 @user.get('/{id}')
 def read_data(id:int):

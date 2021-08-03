@@ -18,3 +18,7 @@ app.add_middleware(
 )
 
 app.include_router(user)
+
+#@app.get("/")
+#async def index():
+#    return {"Hello": "World"}
