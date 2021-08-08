@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Response
-from config.db import conn
-from models.user import users
-from schemas.index import User
-from fastapi import HTTPException
+#from config.db import conn
+#from models.user import users
+#from schemas.index import User
+#from fastapi import HTTPException
 import json
 #from bokeh.plotting import Figure
 from bokeh.embed import json_item
@@ -15,12 +15,19 @@ from bokeh.sampledata.iris import flowers
 #from fastapi.responses import JSONResponse
 #from fastapi.encoders import jsonable_encoder
 #import xmltojson
+from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
+
+from bokeh.embed import file_html
+from bokeh.resources import CDN
 
 user = APIRouter()
 
-@user.get('/seleccionar')
+templates = Jinja2Templates(directory="templates")
+
+'''@user.get('/seleccionar')
 def read_data():
-    return conn.execute(users.select()).fetchall()
+    return conn.execute(users.select()).fetchall()'''
 
 @user.get('/select')
 def grafico_mapa():
@@ -40,10 +47,26 @@ def grafico_mapa():
     #    html = html_file.read()
     #    json_ = xmltojson.parse(html)
     #show(p)
-    #json.dumps(json_item(p, "myplot"))
-    return json.dumps(json_item(p, "myplot"))
+    #return json.dumps(json_item(p, "myplot"))
+    html = file_html(p, CDN, "grafico")
+    return HTMLResponse(content=html, status_code=200)
 
-@user.get('/{id}')
+@user.get("/grafico")
+def grafico():
+    html_content="""
+    <html>
+        <head>
+            <title>Some HTML in here</title>
+        </head>
+        <body>
+            <h1>Look ma! HTML!</h1>
+        </body>
+    </html>
+    """
+    return HTMLResponse(content=html_content, status_code=200)
+
+
+'''@user.get('/{id}')
 def read_data(id:int):
     valor = conn.execute(users.select().where(users.c.id == id)).fetchall()
     if valor:
@@ -72,6 +95,6 @@ def update_data(id:int,user:User):
 @user.delete('/{id}')
 def delete_data(id:int):
     conn.execute(users.delete().where(users.c.id == id))
-    return conn.execute(users.select()).fetchall()
+    return conn.execute(users.select()).fetchall()'''
 
 
