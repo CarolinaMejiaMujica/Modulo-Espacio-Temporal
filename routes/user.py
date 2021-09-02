@@ -22,10 +22,8 @@ from fastapi.templating import Jinja2Templates
 from bokeh.models import CategoricalColorMapper
 from bokeh.models.tools import TapTool
 from bokeh.models.callbacks import CustomJS
-
 from bokeh.embed import file_html
 from bokeh.resources import CDN
-
 from faker import Factory
 
 user = APIRouter()
@@ -47,7 +45,7 @@ def grafico_mapa():
             color=colors, fill_alpha=0.2, size=10)
     return json.dumps(json_item(p, "myplot"))'''
 
-@user.get("/mapa")
+@user.get("/mapa2")
 def grafico():
     df_departamentos=pd.DataFrame(conn.execute(departamentos.select()).fetchall())
     df_departamentos.columns=['ID', 'Nombre', 'latitud', 'longitud']

@@ -1,6 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from routes.index import user
+from routes.index import tiempo
+from routes.index import espacio
 
 app = FastAPI(tittle='Herramienta analítica interactiva', description='Proeycto de Tesis',version='1.0.1')
 
@@ -18,6 +20,8 @@ app.add_middleware(
 )
 
 app.include_router(user)
+app.include_router(espacio)
+app.include_router(tiempo)
 
 #@app.get("/")
 #async def index():
