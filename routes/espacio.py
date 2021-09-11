@@ -92,7 +92,7 @@ def grafico(fechaIni: str,fechaFin: str):
           ("Variante predominante","@variante"),
           ("Color", "$variante $swatch:color")]
 
-    fig = figure(tools="pan,zoom_in,zoom_out,undo,redo,reset,save",plot_width=750, plot_height=600,
+    fig = figure(tools="pan,zoom_in,zoom_out,undo,redo,reset,save",plot_width=700, plot_height=600,
                 x_axis_location=None, y_axis_location=None,
                 tooltips=TOOLTIPS)
 

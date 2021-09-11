@@ -55,7 +55,7 @@ def grafico(fechaIni: str,fechaFin: str):
     for a in list(set(df_secu['variante'])):
         colores.append(list(df_secu.color.loc[df_secu['variante']==a])[0])
 
-    p = figure(tools="pan,zoom_in,zoom_out,undo,redo,reset,save",plot_width=1650, plot_height=500, x_axis_type="datetime")
+    p = figure(tools="pan,zoom_in,zoom_out,undo,redo,reset,save",plot_width=1450, plot_height=500, x_axis_type="datetime")
 
     hover=HoverTool(tooltips=[('Fecha de recolección', '@fecha{%d-%m-%Y}'),
                             ("Cantidad de secuencias genómicas","@count"),
@@ -97,7 +97,7 @@ def grafico(fechaIni: str,fechaFin: str):
     data['angulo'] = data['count']/data['count'].sum()*2*pi
     data['pocentaje'] = round(data['count']/data['count'].sum()*100,2)
 
-    p = figure(tools="pan,zoom_in,zoom_out,undo,redo,reset,save",plot_width=750, plot_height=600,
+    p = figure(tools="pan,zoom_in,zoom_out,undo,redo,reset,save",plot_width=700, plot_height=600,
             tooltips=[("Variante","@variante"),("Porcentaje","@pocentaje{1.11} %"), ("Cantidad","@count")])
 
     p.wedge(x=0, y=1, radius=0.8,
