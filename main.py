@@ -1,10 +1,9 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from routes.index import user
 from routes.index import tiempo
 from routes.index import espacio
 
-app = FastAPI(tittle='Herramienta analítica interactiva', description='Proeycto de Tesis',version='1.0.1')
+app = FastAPI(tittle='Herramienta analítica interactiva', description='Proyecto de Tesis',version='1.0.1')
 
 origins = [
     "http://localhost",
@@ -19,10 +18,5 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(user)
 app.include_router(espacio)
 app.include_router(tiempo)
-
-#@app.get("/")
-#async def index():
-#    return {"Hello": "World"}

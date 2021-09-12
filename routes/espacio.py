@@ -1,36 +1,18 @@
 from fastapi import APIRouter, Response
 from config.db import conn
 from models.departamentos import departamentos
-from models.secuencias import secuencias
-from schemas.index import User
-from fastapi import HTTPException
 import json
-from bokeh.plotting import Figure
 from bokeh.embed import json_item
-from bokeh.sampledata.autompg import autompg
-from numpy import cos, linspace
 import pandas as pd
-from bokeh.io import show
-from bokeh.models import LogColorMapper
-from bokeh.plotting import figure, show,  output_file, save
-from fastapi.responses import JSONResponse
-from fastapi.encoders import jsonable_encoder
-from fastapi.responses import HTMLResponse
-from fastapi.templating import Jinja2Templates
+from bokeh.plotting import figure
 from bokeh.models import CategoricalColorMapper
 from bokeh.models.tools import TapTool
 from bokeh.models.callbacks import CustomJS
-from bokeh.embed import file_html
-from bokeh.resources import CDN
-from bokeh.models import DatetimeTickFormatter
-from bokeh.models import HoverTool
-from math import pi
-from bokeh.transform import cumsum
 
 
 espacio = APIRouter()
 
-@espacio.get("/mapa/")
+@espacio.post("/mapa/")
 def grafico(fechaIni: str,fechaFin: str):
     df_departamentos=pd.DataFrame(conn.execute(departamentos.select()).fetchall())
     df_departamentos.columns=['ID', 'Nombre', 'latitud', 'longitud']
@@ -50,7 +32,7 @@ def grafico(fechaIni: str,fechaFin: str):
     df_departamentos['color']="a"
     df_departamentos.loc[df_departamentos['count'].isnull(),'count']=0
 
-    df_vari=pd.DataFrame(conn.execute(f"SELECT d.nombre, COALESCE(v.id_variante,0) as id_variante, count(a.*), COALESCE(v.nombre,'') as nombre_variante, "+
+    df_vari=pd.DataFrame(conn.execute(f"SELECT d.nombre, COALESCE(v.id_variante,0) as id_variante, count(a.*), CONCAT(COALESCE(v.nomenclatura,''), ' - ', v.nombre) as nombre_variante, "+
                                   "v.color from departamentos as d LEFT JOIN secuencias as s ON d.id_departamento=s.id_departamento "+
                                   "LEFT JOIN agrupamiento as a ON s.id_secuencia=a.id_secuencia LEFT JOIN variantes as v ON a.id_variante=v.id_variante "+
                                   "LEFT JOIN algoritmos as m ON a.id_algoritmo=m.id_algoritmo "+

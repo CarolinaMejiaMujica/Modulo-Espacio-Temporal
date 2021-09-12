@@ -1,5 +1,5 @@
 from sqlalchemy import Table,Column
-from sqlalchemy.sql.sqltypes import Integer, String, ARRAY, Float, Date, LargeBinary
+from sqlalchemy.sql.sqltypes import Integer, String, ARRAY, Float
 from config.db import meta
 
 departamentos = Table(

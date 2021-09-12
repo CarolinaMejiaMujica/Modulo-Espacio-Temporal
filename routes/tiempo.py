@@ -1,42 +1,23 @@
-from fastapi import APIRouter, Response
+from fastapi import APIRouter
 from config.db import conn
-from models.departamentos import departamentos
-from models.secuencias import secuencias
-from schemas.index import User
-from fastapi import HTTPException
 import json
-from bokeh.plotting import Figure
 from bokeh.embed import json_item
-from bokeh.sampledata.autompg import autompg
-from numpy import cos, linspace
 import pandas as pd
-from bokeh.io import show
-from bokeh.models import LogColorMapper
-from bokeh.plotting import figure, show,  output_file, save
-from fastapi.responses import JSONResponse
-from fastapi.encoders import jsonable_encoder
-from fastapi.responses import HTMLResponse
-from fastapi.templating import Jinja2Templates
-from bokeh.models import CategoricalColorMapper
-from bokeh.models.tools import TapTool
-from bokeh.models.callbacks import CustomJS
-from bokeh.embed import file_html
-from bokeh.resources import CDN
+from bokeh.plotting import figure
 from bokeh.models import DatetimeTickFormatter
 from bokeh.models import HoverTool
 from math import pi
 from bokeh.transform import cumsum
-from pydantic import BaseModel
 
 tiempo = APIRouter()
 
 def data_secuencias(ini,fin):
-    df_secu=pd.DataFrame(conn.execute(f"select count(s.id_secuencia),s.fecha_recoleccion, v.nombre as variante, v.color from secuencias as s "+
+    df_secu=pd.DataFrame(conn.execute(f"select count(s.id_secuencia),s.fecha_recoleccion, v.nomenclatura as variante, v.color from secuencias as s "+
             "LEFT JOIN agrupamiento as a ON s.id_secuencia=a.id_secuencia LEFT JOIN variantes as v ON a.id_variante=v.id_variante "+
             "LEFT JOIN algoritmos as m ON a.id_algoritmo=m.id_algoritmo "+
             "where m.nombre like 'k-means' and m.parametro=10 and "+
             "s.fecha_recoleccion >= \'"+ ini +"\' and s.fecha_recoleccion<= \'"+ fin +
-            "\' group by s.fecha_recoleccion, v.nombre,v.color order by s.fecha_recoleccion").fetchall())
+            "\' group by s.fecha_recoleccion, v.nomenclatura,v.color order by s.fecha_recoleccion").fetchall())
     df_secu.columns=['count','fecha','variante','color']
     return df_secu
 
@@ -88,7 +69,7 @@ def grafico(fechaIni: str,fechaFin: str):
     return json.dumps(json_item(p, "graficolineal"))
 
 
-@tiempo.get("/graficocircular/")
+@tiempo.post("/graficocircular/")
 def grafico(fechaIni: str,fechaFin: str):
     df_secu=data_secuencias(fechaIni,fechaFin)
     data=pd.DataFrame(df_secu.groupby(by=["variante","color"]).sum()[["count"]])
