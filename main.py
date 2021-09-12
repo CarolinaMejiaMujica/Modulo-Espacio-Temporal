@@ -8,6 +8,8 @@ app = FastAPI(tittle='Herramienta analítica interactiva', description='Proyecto
 origins = [
     "http://localhost",
     "http://localhost:8080",
+    "https://localhost",
+    "https://localhost:8080",
 ]
 
 app.add_middleware(
