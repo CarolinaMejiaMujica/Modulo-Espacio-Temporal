@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from routes.index import tiempo
 from routes.index import espacio
 
-app = FastAPI(tittle='Herramienta analítica interactiva', description='Proyecto de Tesis',version='1.0.1')
+app = FastAPI(tittle='Herramienta analítica interactiva', description='Proyecto de Tesis',version='1.0.2')
 
 origins = [
     "http://localhost",
