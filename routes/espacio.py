@@ -1,4 +1,6 @@
+import pickle
 from fastapi import APIRouter, Response
+from starlette.responses import JSONResponse
 from config.db import conn
 from models.departamentos import departamentos
 import json
@@ -17,9 +19,7 @@ todos =['Amazonas','Áncash','Apurímac','Arequipa','Ayacucho','Cajamarca','Call
     'Moquegua','Pasco','Piura','Puno','San Martín','Tacna','Tumbes','Ucayali']
 
 @espacio.post("/mapa/")
-def grafico(fechaIni: str,fechaFin: str,deps: List[str]):
-    #if 'Todos' in deps:
-    #    deps.remove('Todos')
+def graficoMapa(fechaIni: str,fechaFin: str,deps: List[str]):
     if len(deps)==25:
         deps=todos
     elif 'Todos' in deps:
@@ -33,7 +33,7 @@ def grafico(fechaIni: str,fechaFin: str,deps: List[str]):
                                 "LEFT JOIN agrupamiento as a ON s.id_secuencia=a.id_secuencia "+
                                 "LEFT JOIN variantes as v ON a.id_variante=v.id_variante "+
                                 "LEFT JOIN algoritmos as m ON a.id_algoritmo=m.id_algoritmo "+
-                                "where m.nombre like 'k-means' and m.parametro=10 and "+
+                                "where s.estado=1 and m.nombre like 'k-means' and m.parametro=6 and "+
                                 "s.fecha_recoleccion >= \'"+ fechaIni +"\' and s.fecha_recoleccion<=\'"+ fechaFin +"\' "+
                                 "and d.nombre in (\'"+ str(valor)+
                                 "\') group by d.nombre order by d.nombre").fetchall())
@@ -43,7 +43,7 @@ def grafico(fechaIni: str,fechaFin: str,deps: List[str]):
                                  "LEFT JOIN agrupamiento as a ON s.id_secuencia=a.id_secuencia "+
                                  "LEFT JOIN variantes as v ON a.id_variante=v.id_variante "+
                                  "LEFT JOIN algoritmos as m ON a.id_algoritmo=m.id_algoritmo "+
-                                 "where m.nombre like 'k-means' and m.parametro=10 and "+
+                                 "where s.estado=1 and m.nombre like 'k-means' and m.parametro=6 and "+
                                  "s.fecha_recoleccion >= \'"+ fechaIni +"\' and s.fecha_recoleccion<=\'"+ fechaFin +"\' "+
                                  "and d.nombre in "+ str(result)+
                                  " group by d.nombre order by d.nombre").fetchall())
@@ -69,7 +69,7 @@ def grafico(fechaIni: str,fechaFin: str,deps: List[str]):
                                     "v.color from departamentos as d LEFT JOIN secuencias as s ON d.id_departamento=s.id_departamento "+
                                     "LEFT JOIN agrupamiento as a ON s.id_secuencia=a.id_secuencia LEFT JOIN variantes as v ON a.id_variante=v.id_variante "+
                                     "LEFT JOIN algoritmos as m ON a.id_algoritmo=m.id_algoritmo "+
-                                    "where m.nombre like 'k-means' and m.parametro=10 and "+
+                                    "where s.estado=1 and m.nombre like 'k-means' and m.parametro=6 and "+
                                     "s.fecha_recoleccion >= \'"+ fechaIni +"\' and s.fecha_recoleccion<=\'"+ fechaFin +"\' "+
                                     "and d.nombre in (\'"+ str(valor)+
                                     "\') GROUP BY d.nombre,v.id_variante ORDER BY d.nombre ASC").fetchall())
@@ -78,7 +78,7 @@ def grafico(fechaIni: str,fechaFin: str,deps: List[str]):
                                     "v.color from departamentos as d LEFT JOIN secuencias as s ON d.id_departamento=s.id_departamento "+
                                     "LEFT JOIN agrupamiento as a ON s.id_secuencia=a.id_secuencia LEFT JOIN variantes as v ON a.id_variante=v.id_variante "+
                                     "LEFT JOIN algoritmos as m ON a.id_algoritmo=m.id_algoritmo "+
-                                    "where m.nombre like 'k-means' and m.parametro=10 and "+
+                                    "where s.estado=1 and m.nombre like 'k-means' and m.parametro=6 and "+
                                     "s.fecha_recoleccion >= \'"+ fechaIni +"\' and s.fecha_recoleccion<=\'"+ fechaFin +"\' "+
                                     "and d.nombre in "+ str(result)+
                                     " GROUP BY d.nombre,v.id_variante ORDER BY d.nombre ASC").fetchall())
@@ -144,7 +144,7 @@ def grafico(fechaIni: str,fechaFin: str,deps: List[str]):
         return json.dumps(json_item(fig, "mapa"))
 
 @espacio.post("/tablaespacio/")
-def grafico(fechaIni: str,fechaFin: str,deps: List[str]):
+def tabla(fechaIni: str,fechaFin: str,deps: List[str]):
     if len(deps)==25:
         deps=todos
     elif 'Todos' in deps:
@@ -152,26 +152,41 @@ def grafico(fechaIni: str,fechaFin: str,deps: List[str]):
     result = tuple(deps)
     if len(result) == 1:
         valor=result[0]
-        return conn.execute(f"SELECT d.nombre as nombre, s.codigo, s.fecha_recoleccion as fecha, v.nomenclatura as nomenclatura,v.nombre as variante "+
+        respuesta= conn.execute(f"SELECT d.nombre as nombre, s.codigo, s.fecha_recoleccion as fecha, v.nomenclatura as nomenclatura,v.nombre as variante "+
                         "from departamentos as d "+
                         "LEFT JOIN secuencias as s ON d.id_departamento=s.id_departamento "+
                         "LEFT JOIN agrupamiento as a ON s.id_secuencia=a.id_secuencia "+
                         "LEFT JOIN variantes as v ON a.id_variante=v.id_variante "+
                         "LEFT JOIN algoritmos as m ON a.id_algoritmo=m.id_algoritmo "+
-                        "where m.nombre like 'k-means' and m.parametro=10 and "+
+                        "where s.estado=1 and m.nombre like 'k-means' and m.parametro=6 and "+
                         "s.fecha_recoleccion >= \'"+ fechaIni +"\' and s.fecha_recoleccion<= \'"+ fechaFin +"\' "+
                         "and d.nombre in (\'"+ str(valor)+
                         "\') ORDER BY d.nombre ASC").fetchall()
+        if len(respuesta) == 0:
+            return 'No hay datos'
+        return respuesta
+
     elif len(result) > 1:
-        return conn.execute(f"SELECT d.nombre as nombre, s.codigo, s.fecha_recoleccion as fecha, v.nomenclatura as nomenclatura,v.nombre as variante "+
+        respuesta= conn.execute(f"SELECT d.nombre as nombre, s.codigo, s.fecha_recoleccion as fecha, v.nomenclatura as nomenclatura,v.nombre as variante "+
                         "from departamentos as d "+
                         "LEFT JOIN secuencias as s ON d.id_departamento=s.id_departamento "+
                         "LEFT JOIN agrupamiento as a ON s.id_secuencia=a.id_secuencia "+
                         "LEFT JOIN variantes as v ON a.id_variante=v.id_variante "+
                         "LEFT JOIN algoritmos as m ON a.id_algoritmo=m.id_algoritmo "+
-                        "where m.nombre like 'k-means' and m.parametro=10 and "+
+                        "where s.estado=1 and m.nombre like 'k-means' and m.parametro=6 and "+
                         "s.fecha_recoleccion >= \'"+ fechaIni +"\' and s.fecha_recoleccion<= \'"+ fechaFin +"\' "+
                         "and d.nombre in "+ str(result)+
                         " ORDER BY d.nombre ASC").fetchall()
+        if len(respuesta) == 0:
+            return 'No hay datos'
+        return respuesta
     else:
         return 'No hay datos'
+
+@espacio.post("/cantidades/")
+def cantidades():
+    archiv=conn.execute(f"select archivo from archivos where nombre=\'cantidad total\';").fetchall()
+    cantidadTotal = pickle.loads(archiv[0][0])
+    archiv=conn.execute(f"select count(*) from secuencias where estado=1;").fetchall()
+    cantidadAnalisis = archiv[0][0]
+    return JSONResponse(content={"cantidadTotal":cantidadTotal,"cantidadAnalisis":cantidadAnalisis})
